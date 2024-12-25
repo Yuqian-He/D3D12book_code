@@ -1,7 +1,19 @@
 #include "Renderer.h"
+#include "d3dx12.h"
+
 using namespace Microsoft::WRL;
 using Microsoft::WRL::ComPtr;
 using namespace DirectX;
+
+Renderer::Renderer() : m_width(1280), m_height(720), mCurrBackBuffer(0), mCurrentFence(0){}
+Renderer::~Renderer()
+{
+    if (m_device != nullptr)
+        FlushCommandQueue();
+}
+
+void Renderer::Initialize(HWND hwnd)
+{
 
 #if defined(DEBUG) || defined(_DEBUG)  
 {
@@ -11,11 +23,6 @@ using namespace DirectX;
 }
 #endif
 
-Renderer::Renderer() {}
-Renderer::~Renderer() {}
-
-void Renderer::Initialize(HWND hwnd)
-{
     CreateDevice();
     CreateFence();
     CreateCommandQueue();
@@ -77,8 +84,8 @@ void Renderer::CreateCommandQueue()
 void Renderer::CreateSwapChain(HWND hwnd)
 {
     DXGI_SWAP_CHAIN_DESC sd;
-    sd.BufferDesc.Width = mClientWidth;
-    sd.BufferDesc.Height = mClientHeight;
+    sd.BufferDesc.Width = m_width;
+    sd.BufferDesc.Height = m_height;
     sd.BufferDesc.RefreshRate.Numerator = 60;
     sd.BufferDesc.RefreshRate.Denominator = 1;
     sd.BufferDesc.Format = mBackBufferFormat;
@@ -91,10 +98,18 @@ void Renderer::CreateSwapChain(HWND hwnd)
     sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
+
+    ComPtr<IDXGISwapChain> swapChain;
+
+    // 创建 SwapChain
     ThrowIfFailed(mdxgiFactory->CreateSwapChain(
         m_commandQueue.Get(),
         &sd,
-        m_swapChain.GetAddressOf()));
+        swapChain.GetAddressOf()
+    ));
+
+    // 获取 IDXGISwapChain4 接口
+    ThrowIfFailed(swapChain.As(&m_swapChain));
 
 }
 
@@ -137,18 +152,17 @@ D3D12_CPU_DESCRIPTOR_HANDLE Renderer::DepthStencilView() const
 
 void Renderer::CreateRenderTargetView()
 {
-    ComPtr<ID3D12Resource> mSwapChainBuffer[SwapChainBufferCount];
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHeapHandle(
-        mRtvHeap->GetCPUDescriptorHandleForHeapStart()); // 获取渲染目标视图堆的起始句柄
+        m_rtvHeap->GetCPUDescriptorHandleForHeapStart()); // 获取渲染目标视图堆的起始句柄
 
     for (UINT i = 0; i < SwapChainBufferCount; i++) {
         // 获取交换链中的第 i 个缓冲区
-        ThrowIfFailed(mSwapChain->GetBuffer(
-            i, IID_PPV_ARGS(&mSwapChainBuffer[i])));
+        ThrowIfFailed(m_swapChain->GetBuffer(
+            i, IID_PPV_ARGS(&m_swapChainBuffer[i])));
 
         // 创建一个渲染目标视图 (RTV) 给当前的缓冲区
         m_device->CreateRenderTargetView(
-            mSwapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
+            m_swapChainBuffer[i].Get(), nullptr, rtvHeapHandle);
 
         // 移动到堆中的下一个描述符位置
         rtvHeapHandle.Offset(1, mRtvDescriptorSize);
@@ -161,8 +175,8 @@ void Renderer::CreateDepthStencilBuffer()
     D3D12_RESOURCE_DESC depthStencilDesc;
     depthStencilDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;  // 说明这是一个二维纹理资源
     depthStencilDesc.Alignment = 0;  // 默认对齐方式
-    depthStencilDesc.Width = mClientWidth;  // 缓冲区的宽度，通常为窗口的宽度
-    depthStencilDesc.Height = mClientHeight;  // 缓冲区的高度，通常为窗口的高度
+    depthStencilDesc.Width = m_width;  // 缓冲区的宽度，通常为窗口的宽度
+    depthStencilDesc.Height = m_height;  // 缓冲区的高度，通常为窗口的高度
     depthStencilDesc.DepthOrArraySize = 1;  // 资源的深度或数组大小，这里是 1，因为只有一个层
     depthStencilDesc.MipLevels = 1;  // 使用的 Mipmap 层数，通常深度缓冲区只有一个 Mipmap 层
     depthStencilDesc.Format = mDepthStencilFormat;  // 设置深度/模板缓冲区的格式
@@ -199,4 +213,78 @@ void Renderer::CreateDepthStencilBuffer()
             m_depthStencil.Get(),  // 深度/模板缓冲区资源
             D3D12_RESOURCE_STATE_COMMON,  // 初始状态
             D3D12_RESOURCE_STATE_DEPTH_WRITE));  // 目标状态
+}
+
+void Renderer::SetViewportAndScissor(UINT width, UINT height) {
+    D3D12_VIEWPORT viewport = {};
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    viewport.Width = static_cast<float>(width);
+    viewport.Height = static_cast<float>(height);
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    m_commandList->RSSetViewports(1, &viewport);
+
+    D3D12_RECT scissorRect = {};
+    scissorRect.left = 0;
+    scissorRect.top = 0;
+    scissorRect.right = width;
+    scissorRect.bottom = height;
+    m_commandList->RSSetScissorRects(1, &scissorRect);
+}
+
+void Renderer::Render()
+{
+    // 重置命令分配器和命令列表
+    ThrowIfFailed(m_commandAllocator->Reset());
+    ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), nullptr));
+
+    // 指定渲染目标
+    m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+        m_swapChainBuffer[mCurrBackBuffer].Get(),
+        D3D12_RESOURCE_STATE_PRESENT,
+        D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+    // 设置渲染目标和深度/模板缓冲区
+    m_commandList->OMSetRenderTargets(1, &CurrentBackBufferView(), TRUE, &DepthStencilView());
+
+    // 清屏
+    const float clearColor[] = { 0.2f, 0.3f, 0.4f, 1.0f }; // 颜色可以根据需要调整
+    m_commandList->ClearRenderTargetView(CurrentBackBufferView(), clearColor, 0, nullptr);
+    m_commandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+    // 过渡到 PRESENT 状态
+    m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
+        m_swapChainBuffer[mCurrBackBuffer].Get(),
+        D3D12_RESOURCE_STATE_RENDER_TARGET,
+        D3D12_RESOURCE_STATE_PRESENT));
+
+    // 关闭命令列表并执行
+    ThrowIfFailed(m_commandList->Close());
+    ID3D12CommandList* commandLists[] = { m_commandList.Get() };
+    m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+
+    // 交换缓冲区
+    ThrowIfFailed(m_swapChain->Present(1, 0));
+
+    // 移动到下一个缓冲区
+    mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
+
+    // 等待 GPU 完成
+    FlushCommandQueue();
+}
+
+void Renderer::FlushCommandQueue()
+{
+    mCurrentFence++;
+
+    ThrowIfFailed(m_commandQueue->Signal(m_fence.Get(), mCurrentFence));
+
+    if (m_fence->GetCompletedValue() < mCurrentFence)
+    {
+        HANDLE eventHandle = CreateEventEx(nullptr, FALSE, FALSE, EVENT_ALL_ACCESS);
+        ThrowIfFailed(m_fence->SetEventOnCompletion(mCurrentFence, eventHandle));
+        WaitForSingleObject(eventHandle, INFINITE);
+        CloseHandle(eventHandle);
+    }
 }

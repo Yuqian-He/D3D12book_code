@@ -1,0 +1,10 @@
+^D:\PERSONAL PROJECT\D3D12BOOK_CODE\CHAPTER4 INITIALIZING DIRECT3D\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SD:/Personal Project/D3D12book_code/Chapter4 Initializing Direct3D" "-BD:/Personal Project/D3D12book_code/Chapter4 Initializing Direct3D/build" --check-stamp-file "D:/Personal Project/D3D12book_code/Chapter4 Initializing Direct3D/build/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
