@@ -1,3 +1,0 @@
-D:/Personal Project/D3D12book_code/Chapter4 Initializing Direct3D/build/CMakeFiles/Direct3D12Renderer.dir
-D:/Personal Project/D3D12book_code/Chapter4 Initializing Direct3D/build/CMakeFiles/ALL_BUILD.dir
-D:/Personal Project/D3D12book_code/Chapter4 Initializing Direct3D/build/CMakeFiles/ZERO_CHECK.dir
