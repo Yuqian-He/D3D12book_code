@@ -12,14 +12,12 @@ I’m currently reading **[*Introduction to 3D Game Programming with DirectX12*]
 
 ## 📖 **Weekly Plan Breakdown**  
 
-| **Week** | **Date Range** | **Chapters to Cover** | **Goals** |  
+| **steps** | **Date Range** | **Chapters to Cover** | **Goals** |  
 |----------|---------------|-----------------------|----------|  
-| **Week 1** | *2024-12-25 → 2024-12-31* | Chapter 4 | Initialize Direct3D, set up basic rendering pipeline. ✅ |  
-| **Week 2** | *2025-01-01 → 2025-01-07* | Chapter 5 | The Rendering Pipeline. |  
-| **Week 3** | *2025-01-08 → 2025-01-14* | Chapter 6 | Drawing in Direct3D. |  
-| **Week 4** | *2025-01-15 → 2025-01-21* | Chapter 7 | Drawing in Direct3D(Part 2). |  
-| **Week 5** | *2025-01-22 → 2025-01-28* | Chapter 8 | Lighting. |  
-| **Week 6** | *2025-01-29 → 2025-02-04* | Chapter 9 | Texture. |  
+| **steps 1** | ✅*2024-12-24 → 2024-12-26* | Chapter 4 | Initialize Direct3D, set up basic rendering pipeline.  |  
+| **steps 2** | ✅*2024-12-27 → 2024-12-27* | Chapter 5 | The Rendering Pipeline. |  
+| **steps 3** | *2024-12-28 → 2025-01-04* | Chapter 6 & 7 | Drawing in Direct3D & Part 2. |  
+| **steps 4** | *2025-01-05 → 2025-01-12* | Chapter 8 & 9 | Lighting & Texture. |  
 
 ---
 
