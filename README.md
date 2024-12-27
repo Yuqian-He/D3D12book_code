@@ -11,13 +11,10 @@ I’m currently reading **[*Introduction to 3D Game Programming with DirectX12*]
 ---
 
 ## 📖 **Plan Breakdown**  
-
-
- 
-✅ *2024-12-24 → 2024-12-26* | Chapter 4 | Initialize Direct3D, set up basic rendering pipeline. 
-✅ *2024-12-27 → 2024-12-27* | Chapter 5 | The Rendering Pipeline. 
-*2024-12-28 → 2025-01-04* | Chapter 6 & 7 | Drawing in Direct3D & Part 2. 
-*2025-01-05 → 2025-01-12* | Chapter 8 & 9 | Lighting & Texture. 
+- ✅ *2024-12-24 → 2024-12-26* | Chapter 4 | Initialize Direct3D, set up basic rendering pipeline. 
+- ✅ *2024-12-27 → 2024-12-27* | Chapter 5 | The Rendering Pipeline. 
+- *2024-12-28 → 2025-01-04* | Chapter 6 & 7 | Drawing in Direct3D & Part 2. 
+- *2025-01-05 → 2025-01-12* | Chapter 8 & 9 | Lighting & Texture. 
 
 ---
 
