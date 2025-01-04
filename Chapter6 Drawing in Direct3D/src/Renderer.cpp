@@ -488,7 +488,7 @@ void Renderer::Render()
     // 重置命令分配器和命令列表
     std::cout << "Begin Render Function..." << std::endl;
     ThrowIfFailed(m_commandAllocator->Reset());
-    ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), nullptr));
+    ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), m_pipelineState.Get()));
 
     //设置视口和裁剪矩形
     SetViewportAndScissor(m_width,m_height);

@@ -36,8 +36,8 @@ public:
     D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 
 private:
-    UINT m_width = 800;  
-    UINT m_height = 600; 
+    UINT m_width = 1280;  
+    UINT m_height = 720; 
     UINT mRtvDescriptorSize = 0;     
     UINT mDsvDescriptorSize = 0;    
     UINT mCbvSrvDescriptorSize = 0; 
