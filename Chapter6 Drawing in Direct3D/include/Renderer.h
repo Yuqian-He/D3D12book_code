@@ -1,4 +1,5 @@
 #pragma once
+
 #include <d3d12.h>
 #include <wrl.h>
 #include <DirectXMath.h>
@@ -6,25 +7,19 @@
 #include <dxgi1_6.h>
 #include <iostream>
 #include <d3dcompiler.h>
+
+#include "MathHelper.h"
+#include "d3dUtil.h"
 #include "UploadBuffer.h"
 
-inline void ThrowIfFailed(HRESULT hr)
-{
-    if (FAILED(hr))
-    {
-        throw std::runtime_error("HRESULT failed");
-    }
-}
 
-struct Vertex
-{
-    XMFLOAT3 Pos;
-    XMFLOAT4 Color;
+struct Vertex{
+    DirectX::XMFLOAT3 Pos;
+    DirectX::XMFLOAT4 Color;
 };
 
-struct ObjectConstants
-{
-    XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+struct ObjectConstants{
+    DirectX::XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
 };
 
 class Renderer {
@@ -35,12 +30,14 @@ public:
     
     void Initialize(HWND hwnd);
     void Render();
+    void Update();
     D3D12_CPU_DESCRIPTOR_HANDLE CurrentBackBufferView() const;
+    ID3D12Resource* CurrentBackBuffer() const;
     D3D12_CPU_DESCRIPTOR_HANDLE DepthStencilView() const;
 
 private:
-    UINT m_width = 1280;  
-    UINT m_height = 720; 
+    UINT m_width = 800;  
+    UINT m_height = 600; 
     UINT mRtvDescriptorSize = 0;     
     UINT mDsvDescriptorSize = 0;    
     UINT mCbvSrvDescriptorSize = 0; 
@@ -62,7 +59,7 @@ private:
     void CreateSwapChain(HWND hwnd);
     void BuildDescriptorHeaps();
     void BuildConstantBuffers();
-    void BuildRootSignatur();
+    void BuildRootSignature();
     void BuildShadersAndInputLayout();
     void BuildBoxGeometry();
     void BuildPSO();
@@ -89,5 +86,10 @@ private:
     std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayout;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
+    Microsoft::WRL::ComPtr<ID3DBlob> mvsByteCode = nullptr; 
+    Microsoft::WRL::ComPtr<ID3DBlob> mpsByteCode = nullptr; 
+    DirectX::XMFLOAT4X4 mWorld = MathHelper::Identity4x4();
+    DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
+    DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
 };
 

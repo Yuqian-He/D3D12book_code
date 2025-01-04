@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "d3dx12.h"
 #include "d3dUtil.h"
+#include <initguid.h>
 
 using namespace Microsoft::WRL;
 using Microsoft::WRL::ComPtr;
@@ -33,12 +34,21 @@ void Renderer::Initialize(HWND hwnd)
     CreateDepthStencilBuffer();
 
     //画正方体
+    ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), nullptr));
+
     BuildDescriptorHeaps();
     BuildConstantBuffers();
     BuildRootSignature();
     BuildShadersAndInputLayout();
     BuildBoxGeometry();
     BuildPSO();
+
+    ThrowIfFailed(m_commandList->Close());
+
+    ID3D12CommandList* cmdsLists[] = { m_commandList.Get() };
+    m_commandQueue->ExecuteCommandLists(_countof(cmdsLists), cmdsLists);
+
+    FlushCommandQueue();
 
 }
 
@@ -154,6 +164,11 @@ D3D12_CPU_DESCRIPTOR_HANDLE Renderer::CurrentBackBufferView() const
         mRtvDescriptorSize);  // RTV 描述符的字节大小
 }
 
+ID3D12Resource* Renderer::CurrentBackBuffer()const
+{
+    return m_swapChainBuffer[mCurrBackBuffer].Get();
+}
+
 // 获取深度/模板视图（DSV）的句柄
 D3D12_CPU_DESCRIPTOR_HANDLE Renderer::DepthStencilView() const
 {
@@ -249,7 +264,7 @@ void Renderer::BuildConstantBuffers(){
 	m_device->CreateConstantBufferView(&cbvDesc, mCbvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
-void Renderer::BuildRootSignatur(){
+void Renderer::BuildRootSignature(){
 
     //定义根参数
     CD3DX12_ROOT_PARAMETER slotRootParameter[1];
@@ -278,12 +293,11 @@ void Renderer::BuildRootSignatur(){
 }
 
 void Renderer::BuildShadersAndInputLayout(){
-    HRESULT hr = S_OK;
 
-    mvsByteCode = d3dUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
-	mpsByteCode = d3dUtil::CompileShader(L"Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+    mvsByteCode = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter6 Drawing in Direct3D\\Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
+	mpsByteCode = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter6 Drawing in Direct3D\\Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
 
-    mInputLayout =
+    m_InputLayout =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
@@ -344,10 +358,10 @@ void Renderer::BuildBoxGeometry(){
     CopyMemory(mBoxGeo->IndexBufferCPU->GetBufferPointer(), indices.data(), ibByteSize);
 
 	mBoxGeo->VertexBufferGPU = d3dUtil::CreateDefaultBuffer(m_device.Get(),
-		mCommandList.Get(), vertices.data(), vbByteSize, mBoxGeo->VertexBufferUploader); //创建 GPU 顶点缓冲区 将顶点数据从 CPU 上传到 GPU 的默认缓冲区中
+		m_commandList.Get(), vertices.data(), vbByteSize, mBoxGeo->VertexBufferUploader); //创建 GPU 顶点缓冲区 将顶点数据从 CPU 上传到 GPU 的默认缓冲区中
 
 	mBoxGeo->IndexBufferGPU = d3dUtil::CreateDefaultBuffer(m_device.Get(),
-		mCommandList.Get(), indices.data(), ibByteSize, mBoxGeo->IndexBufferUploader); //创建 GPU 顶点缓冲区 将索引数据从 CPU 上传到 GPU 的默认缓冲区中
+		m_commandList.Get(), indices.data(), ibByteSize, mBoxGeo->IndexBufferUploader); //创建 GPU 顶点缓冲区 将索引数据从 CPU 上传到 GPU 的默认缓冲区中
 
     // 设置缓冲区属性
 	mBoxGeo->VertexByteStride = sizeof(Vertex);
@@ -395,8 +409,8 @@ void Renderer::BuildPSO(){
 
 void Renderer::SetViewportAndScissor(UINT width, UINT height) {
     D3D12_VIEWPORT viewport = {};
-    viewport.TopLeftX = 0.0f;
-    viewport.TopLeftY = 0.0f;
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
     viewport.Width = static_cast<float>(width);
     viewport.Height = static_cast<float>(height);
     viewport.MinDepth = 0.0f;
@@ -411,29 +425,106 @@ void Renderer::SetViewportAndScissor(UINT width, UINT height) {
     m_commandList->RSSetScissorRects(1, &scissorRect);
 }
 
+void Renderer::Update()
+{
+    // 设置相机参数
+    float mTheta = 0.0f;      // 旋转角度
+    float mPhi = 0.5f;        // 俯仰角度
+    float mRadius = 5.0f;     // 距离
+
+    // 根据相机参数计算相机的位置
+    float x = mRadius * sinf(mPhi) * cosf(mTheta);
+    float z = mRadius * sinf(mPhi) * sinf(mTheta);
+    float y = mRadius * cosf(mPhi);
+    std::cout << "Camera Position - X: " << x << ", Y: " << y << ", Z: " << z << std::endl;
+
+    // 设置相机的位置、目标和上方向
+    XMVECTOR pos = XMVectorSet(0.0f, 5.0f, -5.0f, 1.0f);  // 看得见正方体
+    XMVECTOR target = XMVectorZero();  // 相机目标点（通常是场景的中心）
+    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);  // 上方向
+
+    // 生成视图矩阵
+    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
+    XMStoreFloat4x4(&mView, view);  // 保存视图矩阵
+    // 输出view矩阵
+    std::cout << "View Matrix: " << std::endl;
+    for (int i = 0; i < 4; ++i) {
+        std::cout << mView(i, 0) << " " << mView(i, 1) << " " << mView(i, 2) << " " << mView(i, 3) << std::endl;
+    }
+
+    // 设置世界矩阵，简单的单位矩阵不做缩放、旋转、平移
+    // 如果你的物体需要进行变换，应该在这里应用变换
+    XMMATRIX world = XMLoadFloat4x4(&mWorld);
+
+    // 生成投影矩阵，常见的参数：近裁剪平面、远裁剪平面、视野角度（FOV）和宽高比
+    float aspectRatio = static_cast<float>(m_width) / static_cast<float>(m_height);
+    float fovAngleY = 0.25f*MathHelper::Pi;  // 45° FOV
+    float nearZ = 1.0f;
+    float farZ = 1000.0f;
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, nearZ, farZ);
+    XMStoreFloat4x4(&mProj, proj);  // 保存投影矩阵
+
+    std::cout << "proj Matrix: " << std::endl;
+    for (int i = 0; i < 4; ++i) {
+        std::cout << mProj(i, 0) << " " << mProj(i, 1) << " " << mProj(i, 2) << " " << mProj(i, 3) << std::endl;
+    }
+
+    // 计算世界、视图和投影矩阵的组合
+    XMMATRIX worldViewProj = world * view * proj;
+
+    // 传递常量到着色器
+    ObjectConstants objConstants;
+    XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));  // 转置矩阵以适应DirectX的行优先约定
+    mObjectCB->CopyData(0, objConstants);  // 更新常量缓冲区
+
+    std::cout << "WorldViewProj Matrix: " << std::endl;
+    for (int i = 0; i < 4; ++i) {
+        std::cout << objConstants.WorldViewProj(i, 0) << " " << objConstants.WorldViewProj(i, 1) << " " << objConstants.WorldViewProj(i, 2) << " " << objConstants.WorldViewProj(i, 3) << std::endl;
+    }
+}
+
 void Renderer::Render()
 {
     // 重置命令分配器和命令列表
+    std::cout << "Begin Render Function..." << std::endl;
     ThrowIfFailed(m_commandAllocator->Reset());
     ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), nullptr));
 
+    //设置视口和裁剪矩形
+    SetViewportAndScissor(m_width,m_height);
+    std::cout << "Viewport and Scissor set: width = " << m_width << ", height = " << m_height << std::endl;
+
     // 指定渲染目标
     m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-        m_swapChainBuffer[mCurrBackBuffer].Get(),
+        CurrentBackBuffer(),
         D3D12_RESOURCE_STATE_PRESENT,
         D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-    // 设置渲染目标和深度/模板缓冲区
-    m_commandList->OMSetRenderTargets(1, &CurrentBackBufferView(), TRUE, &DepthStencilView());
-
     // 清屏
-    const float clearColor[] = { 0.2f, 0.3f, 0.4f, 1.0f }; // 颜色可以根据需要调整
-    m_commandList->ClearRenderTargetView(CurrentBackBufferView(), clearColor, 0, nullptr);
-    m_commandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+    m_commandList->ClearRenderTargetView(CurrentBackBufferView(), Colors::LightSteelBlue, 0, nullptr);
+    m_commandList->ClearDepthStencilView(DepthStencilView(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
+
+    // 设置我们要渲染的buffer
+    m_commandList->OMSetRenderTargets(1, &CurrentBackBufferView(), TRUE, &DepthStencilView()); //RTV
+    ID3D12DescriptorHeap* descriptorHeaps[] = { mCbvHeap.Get() };
+    m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps); //CBV
+    m_commandList->SetGraphicsRootSignature(m_rootSignature.Get()); //RootSignature
+
+    //渲染几何体
+    m_commandList->IASetVertexBuffers(0, 1, &mBoxGeo->VertexBufferView());
+    m_commandList->IASetIndexBuffer(&mBoxGeo->IndexBufferView());
+    m_commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_commandList->SetGraphicsRootDescriptorTable(0, mCbvHeap->GetGPUDescriptorHandleForHeapStart());
+    m_commandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
+
+    std::cout << "Drawing Indexed Geometry: " << std::endl;
+    std::cout << "Vertex Buffer: " << mBoxGeo->VertexBufferView().SizeInBytes << " bytes" << std::endl;
+    std::cout << "Index Buffer: " << mBoxGeo->IndexBufferView().SizeInBytes << " bytes" << std::endl;
+
 
     // 过渡到 PRESENT 状态
     m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
-        m_swapChainBuffer[mCurrBackBuffer].Get(),
+        CurrentBackBuffer(),
         D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_PRESENT));
 
@@ -443,10 +534,8 @@ void Renderer::Render()
     m_commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 
     // 交换缓冲区
-    ThrowIfFailed(m_swapChain->Present(1, 0));
-
-    // 移动到下一个缓冲区
-    mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
+	ThrowIfFailed(m_swapChain->Present(0, 0));
+	mCurrBackBuffer = (mCurrBackBuffer + 1) % SwapChainBufferCount;
 
     // 等待 GPU 完成
     FlushCommandQueue();
