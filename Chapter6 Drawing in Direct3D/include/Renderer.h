@@ -11,6 +11,7 @@
 #include "MathHelper.h"
 #include "d3dUtil.h"
 #include "UploadBuffer.h"
+#include "Camera.h"
 
 
 struct Vertex{
@@ -65,8 +66,10 @@ private:
     void BuildPSO();
     void SetViewportAndScissor(UINT width, UINT height);
     void FlushCommandQueue();
+    void ProcessInput();
 
     HRESULT hr;
+    Camera m_camera;
     Microsoft::WRL::ComPtr<IDXGIFactory4> mdxgiFactory;
     Microsoft::WRL::ComPtr<ID3D12Device> m_device;
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;

@@ -2,6 +2,7 @@
 #include "d3dx12.h"
 #include "d3dUtil.h"
 #include <initguid.h>
+#include "Camera.h"
 
 using namespace Microsoft::WRL;
 using Microsoft::WRL::ComPtr;
@@ -427,47 +428,15 @@ void Renderer::SetViewportAndScissor(UINT width, UINT height) {
 
 void Renderer::Update()
 {
-    // 设置相机参数
-    float mTheta = 0.0f;      // 旋转角度
-    float mPhi = 0.5f;        // 俯仰角度
-    float mRadius = 5.0f;     // 距离
-
-    // 根据相机参数计算相机的位置
-    float x = mRadius * sinf(mPhi) * cosf(mTheta);
-    float z = mRadius * sinf(mPhi) * sinf(mTheta);
-    float y = mRadius * cosf(mPhi);
-    std::cout << "Camera Position - X: " << x << ", Y: " << y << ", Z: " << z << std::endl;
-
-    // 设置相机的位置、目标和上方向
-    XMVECTOR pos = XMVectorSet(0.0f, 5.0f, -5.0f, 1.0f);  // 看得见正方体
-    XMVECTOR target = XMVectorZero();  // 相机目标点（通常是场景的中心）
-    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);  // 上方向
-
-    // 生成视图矩阵
-    XMMATRIX view = XMMatrixLookAtLH(pos, target, up);
-    XMStoreFloat4x4(&mView, view);  // 保存视图矩阵
-    // 输出view矩阵
-    std::cout << "View Matrix: " << std::endl;
-    for (int i = 0; i < 4; ++i) {
-        std::cout << mView(i, 0) << " " << mView(i, 1) << " " << mView(i, 2) << " " << mView(i, 3) << std::endl;
-    }
-
-    // 设置世界矩阵，简单的单位矩阵不做缩放、旋转、平移
-    // 如果你的物体需要进行变换，应该在这里应用变换
+    ProcessInput(); 
     XMMATRIX world = XMLoadFloat4x4(&mWorld);
-
-    // 生成投影矩阵，常见的参数：近裁剪平面、远裁剪平面、视野角度（FOV）和宽高比
+    XMMATRIX view = m_camera.GetViewMatrix();  // 获取视图矩阵
     float aspectRatio = static_cast<float>(m_width) / static_cast<float>(m_height);
-    float fovAngleY = 0.25f*MathHelper::Pi;  // 45° FOV
+    float fov = XMConvertToRadians(60.0f);
     float nearZ = 1.0f;
     float farZ = 1000.0f;
-    XMMATRIX proj = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, nearZ, farZ);
-    XMStoreFloat4x4(&mProj, proj);  // 保存投影矩阵
-
-    std::cout << "proj Matrix: " << std::endl;
-    for (int i = 0; i < 4; ++i) {
-        std::cout << mProj(i, 0) << " " << mProj(i, 1) << " " << mProj(i, 2) << " " << mProj(i, 3) << std::endl;
-    }
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearZ, farZ);
+    XMStoreFloat4x4(&mProj, proj);
 
     // 计算世界、视图和投影矩阵的组合
     XMMATRIX worldViewProj = world * view * proj;
@@ -554,4 +523,45 @@ void Renderer::FlushCommandQueue()
         WaitForSingleObject(eventHandle, INFINITE);
         CloseHandle(eventHandle);
     }
+}
+
+void Renderer::ProcessInput()
+{
+    // 获取当前的键盘和鼠标输入
+    if (GetAsyncKeyState('W') & 0x8000) {  // W 键（前进）
+        m_camera.MoveForward(0.1f);
+    }
+    if (GetAsyncKeyState('S') & 0x8000) {  // S 键（后退）
+        m_camera.MoveForward(-0.1f);
+    }
+    if (GetAsyncKeyState('A') & 0x8000) {  // A 键（左移）
+        m_camera.MoveRight(-0.1f);
+    }
+    if (GetAsyncKeyState('D') & 0x8000) {  // D 键（右移）
+        m_camera.MoveRight(0.1f);
+    }
+    if (GetAsyncKeyState('Q') & 0x8000) {  // Q 键（上移）
+        m_camera.MoveUp(0.1f);
+    }
+    if (GetAsyncKeyState('E') & 0x8000) {  // E 键（下移）
+        m_camera.MoveUp(-0.1f);
+    }
+
+    // 获取鼠标移动，控制相机旋转
+    POINT cursorPos;
+    GetCursorPos(&cursorPos);  // 获取鼠标相对屏幕的位置
+
+    // 计算鼠标的偏移量
+    static POINT lastCursorPos = cursorPos;  // 记录上一帧的鼠标位置
+    int deltaX = cursorPos.x - lastCursorPos.x;
+    int deltaY = cursorPos.y - lastCursorPos.y;
+
+    // 设置一个灵敏度因子来调节鼠标移动的幅度
+    float sensitivity = 0.1f;
+
+    // 调用相机的旋转函数
+    m_camera.Rotate(deltaX * sensitivity, -deltaY * sensitivity);  // 鼠标水平移动影响yaw，垂直移动影响pitch
+
+    // 更新上一帧的鼠标位置
+    lastCursorPos = cursorPos;
 }
