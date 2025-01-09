@@ -113,11 +113,15 @@ private:
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap; 
     Microsoft::WRL::ComPtr<ID3D12Resource> m_swapChainBuffer[SwapChainBufferCount];
 
-    //画正方体
+    //画多个物体
+    //std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+    //std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
+    //std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
+
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
     std::unique_ptr<UploadBuffer<ObjectConstants>> objCB = nullptr;
     std::unique_ptr<UploadBuffer<PassConstants>> passCB = nullptr;
-    std::unique_ptr<MeshGeometry> mBoxGeo = nullptr;
+    std::unique_ptr<MeshGeometry> geo = nullptr;
     std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayout;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
     Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;

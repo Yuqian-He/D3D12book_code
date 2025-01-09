@@ -24,7 +24,7 @@ file(GLOB SHADERS ${CMAKE_SOURCE_DIR}/include/*.h)
 add_definitions(-DUNICODE -D_UNICODE)
 add_executable(Direct3D12Renderer WIN32 src/main.cpp src/Renderer.cpp 
                                         src/d3dUtil.cpp src/MathHelper.cpp src/Camera.cpp
-                                        )
+                                        src/GeometryGenerator.cpp)
 
 # 使用 vcpkg 安装的库
 find_package(tinyobjloader CONFIG REQUIRED)
