@@ -49,6 +49,7 @@ private:
     bool m4xMsaaState = false; // 是否启用 MSAA
     UINT m4xMsaaQuality = 0;   // MSAA 质量级别
     static const UINT SwapChainBufferCount = 2; 
+    const int gNumFrameResources = 3;
 
     void CreateDevice();
     void CreateDescriptorHeaps();

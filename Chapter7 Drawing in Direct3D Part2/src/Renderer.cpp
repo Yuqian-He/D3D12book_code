@@ -243,37 +243,65 @@ void Renderer::CreateDepthStencilBuffer()
 
 void Renderer::BuildDescriptorHeaps(){
     D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc;
-    cbvHeapDesc.NumDescriptors = 1;
+    cbvHeapDesc.NumDescriptors = 2;
     cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
     cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
     cbvHeapDesc.NodeMask = 0;
+
     ThrowIfFailed(m_device->CreateDescriptorHeap(&cbvHeapDesc,IID_PPV_ARGS(&mCbvHeap)));
 }
 
 void Renderer::BuildConstantBuffers(){
-    mObjectCB = std::make_unique<UploadBuffer<ObjectConstants>>(m_device.Get(), 1, true);
+    //创建第一个cbv
+    objCB = std::make_unique<UploadBuffer<ObjectConstants>>(m_device.Get(), 1, true);
     UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
-    D3D12_GPU_VIRTUAL_ADDRESS cbAddress = mObjectCB->Resource()->GetGPUVirtualAddress();
+    D3D12_GPU_VIRTUAL_ADDRESS cbAddress0 = objCB->Resource()->GetGPUVirtualAddress();
 
     int boxCBufIndex = 0;
-	cbAddress += boxCBufIndex*objCBByteSize;
+	cbAddress0 += boxCBufIndex*objCBByteSize;
 
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc;
-	cbvDesc.BufferLocation = cbAddress;
-	cbvDesc.SizeInBytes = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc0;
+	cbvDesc0.BufferLocation = cbAddress0;
+	cbvDesc0.SizeInBytes = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
 
-	m_device->CreateConstantBufferView(&cbvDesc, mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+    int heapIndex0 = 0;
+    auto handle0 = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+    handle0.Offset(heapIndex0, m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+	m_device->CreateConstantBufferView(&cbvDesc0, handle0);
+
+    //创建第二个cbv
+    passCB  = std::make_unique<UploadBuffer<PassConstants>>(m_device.Get(), 1, true);
+    UINT passCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+    D3D12_GPU_VIRTUAL_ADDRESS cbAddress1 = passCB->Resource()->GetGPUVirtualAddress();
+
+    int passCBufIndex = 0;
+    cbAddress1 += passCBufIndex*passCBByteSize;
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc1;
+	cbvDesc1.BufferLocation = cbAddress1;
+	cbvDesc1.SizeInBytes = d3dUtil::CalcConstantBufferByteSize(sizeof(PassConstants));
+
+    int heapIndex1 = 1;
+    auto handle1 = CD3DX12_CPU_DESCRIPTOR_HANDLE(mCbvHeap->GetCPUDescriptorHandleForHeapStart());
+    handle1.Offset(heapIndex1, m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+	m_device->CreateConstantBufferView(&cbvDesc1, handle1);
+
 }
 
 void Renderer::BuildRootSignature(){
 
     //定义根参数
-    CD3DX12_ROOT_PARAMETER slotRootParameter[1];
-    CD3DX12_DESCRIPTOR_RANGE cbvTable;
-    cbvTable.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-    slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable);
+    CD3DX12_ROOT_PARAMETER slotRootParameter[2];
+
+    CD3DX12_DESCRIPTOR_RANGE cbvTable0;
+    cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
+    slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
+
+    CD3DX12_DESCRIPTOR_RANGE cbvTable1;
+    cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
+    slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
     //定义根签名描述符
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(1, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
     //序列化根签名
     ComPtr<ID3DBlob> serializedRootSig = nullptr;
     ComPtr<ID3DBlob> errorBlob = nullptr;
@@ -295,8 +323,8 @@ void Renderer::BuildRootSignature(){
 
 void Renderer::BuildShadersAndInputLayout(){
 
-    mvsByteCode = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter6 Drawing in Direct3D\\Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
-	mpsByteCode = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter6 Drawing in Direct3D\\Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+    mvsByteCode = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter7 Drawing in Direct3D Part2\\Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
+	mpsByteCode = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter7 Drawing in Direct3D Part2\\Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
 
     m_InputLayout =
     {
@@ -429,6 +457,22 @@ void Renderer::SetViewportAndScissor(UINT width, UINT height) {
 void Renderer::Update()
 {
     ProcessInput(); 
+/*
+    // 获取当前帧资源
+    mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % gNumFrameResources;
+    mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
+
+
+    // 同步 GPU 操作（等到当前帧资源的命令完成）
+    if (mCurrFrameResource->Fence != 0 && m_fence->GetCompletedValue() < mCurrFrameResource->Fence)
+    {
+        HANDLE eventHandle = CreateEventEx(nullptr, false, false, EVENT_ALL_ACCESS);
+        ThrowIfFailed(m_fence->SetEventOnCompletion(mCurrFrameResource->Fence, eventHandle));
+        WaitForSingleObject(eventHandle, INFINITE);
+        CloseHandle(eventHandle);
+    }
+*/
+
     XMMATRIX world = XMLoadFloat4x4(&mWorld);
     XMMATRIX view = m_camera.GetViewMatrix();  // 获取视图矩阵
     float aspectRatio = static_cast<float>(m_width) / static_cast<float>(m_height);
@@ -439,17 +483,17 @@ void Renderer::Update()
     XMStoreFloat4x4(&mProj, proj);
 
     // 计算世界、视图和投影矩阵的组合
-    XMMATRIX worldViewProj = world * view * proj;
+    XMMATRIX ViewProj =  view * proj;
 
     // 传递常量到着色器
     ObjectConstants objConstants;
-    XMStoreFloat4x4(&objConstants.WorldViewProj, XMMatrixTranspose(worldViewProj));  // 转置矩阵以适应DirectX的行优先约定
-    mObjectCB->CopyData(0, objConstants);  // 更新常量缓冲区
+    PassConstants passConstants;
+    
+    XMStoreFloat4x4(&objConstants.world, XMMatrixTranspose(world)); 
+    XMStoreFloat4x4(&passConstants.viewProj, XMMatrixTranspose(ViewProj));
 
-    std::cout << "WorldViewProj Matrix: " << std::endl;
-    for (int i = 0; i < 4; ++i) {
-        std::cout << objConstants.WorldViewProj(i, 0) << " " << objConstants.WorldViewProj(i, 1) << " " << objConstants.WorldViewProj(i, 2) << " " << objConstants.WorldViewProj(i, 3) << std::endl;
-    }
+    objCB->CopyData(0, objConstants);  // 更新常量缓冲区
+    passCB->CopyData(0, passConstants);
 }
 
 void Renderer::Render()
@@ -461,7 +505,6 @@ void Renderer::Render()
 
     //设置视口和裁剪矩形
     SetViewportAndScissor(m_width,m_height);
-    std::cout << "Viewport and Scissor set: width = " << m_width << ", height = " << m_height << std::endl;
 
     // 指定渲染目标
     m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
@@ -483,13 +526,18 @@ void Renderer::Render()
     m_commandList->IASetVertexBuffers(0, 1, &mBoxGeo->VertexBufferView());
     m_commandList->IASetIndexBuffer(&mBoxGeo->IndexBufferView());
     m_commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_commandList->SetGraphicsRootDescriptorTable(0, mCbvHeap->GetGPUDescriptorHandleForHeapStart());
+
+    //这里需要绑定两次
+    int objCbvIndex = 0;
+    auto handle0 = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
+    handle0.Offset(objCbvIndex, m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+    m_commandList->SetGraphicsRootDescriptorTable(0, handle0);
+    int passCbvIndex = 1;
+    auto handle1 = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
+    handle1.Offset(passCbvIndex, m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
+    m_commandList->SetGraphicsRootDescriptorTable(1, handle1);
+
     m_commandList->DrawIndexedInstanced(mBoxGeo->DrawArgs["box"].IndexCount, 1, 0, 0, 0);
-
-    std::cout << "Drawing Indexed Geometry: " << std::endl;
-    std::cout << "Vertex Buffer: " << mBoxGeo->VertexBufferView().SizeInBytes << " bytes" << std::endl;
-    std::cout << "Index Buffer: " << mBoxGeo->IndexBufferView().SizeInBytes << " bytes" << std::endl;
-
 
     // 过渡到 PRESENT 状态
     m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
@@ -509,6 +557,17 @@ void Renderer::Render()
     // 等待 GPU 完成
     FlushCommandQueue();
 }
+
+/*
+void Renderer::BuildFrameResources()
+{
+    for(int i = 0; i < gNumFrameResources; ++i)
+    {
+        mFrameResources.push_back(std::make_unique<FrameResource>(m_device.Get(),
+            1, (UINT)mAllRitems.size()));
+    }
+}
+*/
 
 void Renderer::FlushCommandQueue()
 {

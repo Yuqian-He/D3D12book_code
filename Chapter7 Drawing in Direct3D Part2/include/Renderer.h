@@ -12,15 +12,34 @@
 #include "d3dUtil.h"
 #include "UploadBuffer.h"
 #include "Camera.h"
+//#include "FrameResource.h"
+/*
+struct RenderItem
+{
+	RenderItem() = default;
 
-
+    DirectX::XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+	int NumFramesDirty = gNumFrameResources;
+	UINT ObjCBIndex = -1;
+	MeshGeometry* Geo = nullptr;
+    D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    UINT IndexCount = 0;
+    UINT StartIndexLocation = 0;
+    int BaseVertexLocation = 0;
+};
+*/
 struct Vertex{
     DirectX::XMFLOAT3 Pos;
     DirectX::XMFLOAT4 Color;
 };
 
-struct ObjectConstants{
-    DirectX::XMFLOAT4X4 WorldViewProj = MathHelper::Identity4x4();
+struct ObjectConstants
+{
+	DirectX::XMFLOAT4X4 world = MathHelper::Identity4x4();	
+};
+struct PassConstants
+{
+	DirectX::XMFLOAT4X4 viewProj = MathHelper::Identity4x4();
 };
 
 class Renderer {
@@ -50,6 +69,18 @@ private:
     UINT m4xMsaaQuality = 0;   // MSAA 质量级别
     static const UINT SwapChainBufferCount = 2; 
 
+/*
+    //3缓冲
+    std::vector<std::unique_ptr<FrameResource>> mFrameResources;
+    FrameResource* mCurrFrameResource = nullptr;
+    int mCurrFrameResourceIndex = 0;
+    const int gNumFrameResources = 3;
+    void BuildFrameResources();
+
+    std::vector<std::unique_ptr<RenderItem>> mAllRitems;
+*/
+
+    //初始化
     void CreateDevice();
     void CreateDescriptorHeaps();
     void CreateFence();
@@ -84,7 +115,8 @@ private:
 
     //画正方体
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;
-    std::unique_ptr<UploadBuffer<ObjectConstants>> mObjectCB = nullptr;
+    std::unique_ptr<UploadBuffer<ObjectConstants>> objCB = nullptr;
+    std::unique_ptr<UploadBuffer<PassConstants>> passCB = nullptr;
     std::unique_ptr<MeshGeometry> mBoxGeo = nullptr;
     std::vector<D3D12_INPUT_ELEMENT_DESC> m_InputLayout;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
