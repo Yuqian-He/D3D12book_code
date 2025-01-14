@@ -22,7 +22,7 @@ file(GLOB SHADERS ${CMAKE_SOURCE_DIR}/include/*.h)
 
 # 添加可执行文件
 add_definitions(-DUNICODE -D_UNICODE)
-add_executable(Direct3D12Renderer WIN32 src/main.cpp src/Renderer.cpp 
+add_executable(Direct3D12Renderer WIN32 src/main.cpp src/Renderer.cpp src/FrameResource.cpp
                                         src/d3dUtil.cpp src/MathHelper.cpp src/Camera.cpp
                                         src/GeometryGenerator.cpp)
 
