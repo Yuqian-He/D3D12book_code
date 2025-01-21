@@ -1,7 +1,6 @@
 ### RESULT
 
-## Result for motipul object
-![RESULT](Result/0110_1.jpg)
+## Result for Land with updated Rootsignature
+![RESULT](Result/mmexport1737464671965.gif)
 
-## Result for adding FrameResource & RenderItems
-![Result](Result/image0.gif)
+
