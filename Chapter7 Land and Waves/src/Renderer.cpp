@@ -36,7 +36,7 @@ void Renderer::Initialize(HWND hwnd)
     CreateRenderTargetView();
     CreateDepthStencilBuffer();
 
-    //画正方体
+    //draw
     ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), nullptr));
     
     BuildRootSignature();

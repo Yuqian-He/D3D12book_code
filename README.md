@@ -14,14 +14,8 @@ I’m currently reading **[*Introduction to 3D Game Programming with DirectX12*]
 - ✅ *2024-12-24 → 2024-12-26* | Chapter 4 | Initialize Direct3D, set up basic rendering pipeline. 
 - ✅ *2024-12-27 → 2024-12-27* | Chapter 5 | The Rendering Pipeline. 
 - ✅ *2024-12-28 → 2025-01-04* | Chapter 6  | Drawing in Direct3D. 
-- *2025-01-05 → 2025-01-12* | Chapter 7  | Drawing in Direct3D Part2. 
+- ✅ *2025-01-05 → 2025-01-12* | Chapter 7  | Drawing in Direct3D Part2. 
 - *2025-01-13 → 2025-01-19* | Chapter 8 & 9 | Lighting & Texture. 
-
----
-
-## 📂 **Progress Tracking**  
-All code examples, experiments, and notes will be updated regularly in my repository:  
-👉 [**D3D12book_code**](https://github.com/Yuqian-He/D3D12book_code)  
 
 ---
 
