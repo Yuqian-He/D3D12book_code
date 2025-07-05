@@ -145,8 +145,7 @@ float3 ComputePointLight(Light light, Material mat, float3 pos, float3 normal, f
 
 ##  聚光灯因子计算回顾
 
-$ spotFactor = \max(-\vec{L} \cdot \vec{D}, 0)^{spotPower} $
-
+$ spotFactor = \bigl(\max(-\vec{L} \cdot \vec{D}, 0)\bigr)^{spotPower} $
 
 - $\mathbf{L}$：从顶点指向光源的单位光线向量  
 - $\mathbf{D}$：聚光灯光束的方向单位向量  
