@@ -1,0 +1,3 @@
+D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/Direct3D12Renderer.dir
+D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/ALL_BUILD.dir
+D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/ZERO_CHECK.dir

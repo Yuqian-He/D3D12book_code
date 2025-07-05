@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Personal Project\D3D12book_code\Chapter8 Lighting\src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Personal Project\D3D12book_code\Chapter8 Lighting\src\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Personal Project\D3D12book_code\Chapter8 Lighting\src\FrameResource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Personal Project\D3D12book_code\Chapter8 Lighting\src\d3dUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Personal Project\D3D12book_code\Chapter8 Lighting\src\MathHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Personal Project\D3D12book_code\Chapter8 Lighting\src\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Personal Project\D3D12book_code\Chapter8 Lighting\src\GeometryGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Personal Project\D3D12book_code\Chapter8 Lighting\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{01AAD146-A793-3F3E-924F-B6DBF0887F93}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
