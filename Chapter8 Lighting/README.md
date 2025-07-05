@@ -64,16 +64,14 @@ R0 = ((n - 1) / (n + 1))^2
 
 兰伯特光照的计算公式：
 
-\[
-I = L_d \cdot \max(\mathbf{n} \cdot \mathbf{L}, 0)
-\]
+$I = L_d \cdot \max(\mathbf{n} \cdot \mathbf{L}, 0)$
 
-- \(I\)：点上的漫反射光强
-- \(L_d\)：入射光的总辐照度（光强）
-- \(\mathbf{n}\)：顶点法线单位向量
-- \(\mathbf{L}\)：光线方向单位向量（指向光源）
+- $I$：点上的漫反射光强  
+- $L_d$：入射光的总辐照度（光强）  
+- $\mathbf{n}$：顶点法线单位向量  
+- $\mathbf{L}$：光线方向单位向量（指向光源）  
 
-这里的 \(\mathbf{n} \cdot \mathbf{L}\) 是点积，代表入射光与法线的夹角余弦。
+这里的 $\mathbf{n} \cdot \mathbf{L}$ 是点积，代表入射光与法线的夹角余弦。
 
 ---
 
@@ -147,15 +145,11 @@ float3 ComputePointLight(Light light, Material mat, float3 pos, float3 normal, f
 
 ##  聚光灯因子计算回顾
 
-聚光灯衰减因子（spotFactor）由下面公式计算：
+$ \text{spotFactor} = \left( \max( \mathbf{-L} \cdot \mathbf{D}, 0) \right)^{\text{spotPower}} $
 
-\[
-\text{spotFactor} = \left( \max( \mathbf{-L} \cdot \mathbf{D}, 0) \right)^{\text{spotPower}}
-\]
-
-- \(\mathbf{L}\)：从顶点指向光源的单位光线向量
-- \(\mathbf{D}\)：聚光灯光束的方向单位向量
-- \(\text{spotPower}\)：控制聚光灯光束聚焦度的指数（越大光束越集中）
+- $\mathbf{L}$：从顶点指向光源的单位光线向量  
+- $\mathbf{D}$：聚光灯光束的方向单位向量  
+- $\text{spotPower}$：控制聚光灯光束聚焦度的指数（越大光束越集中）  
 
 ---
 
