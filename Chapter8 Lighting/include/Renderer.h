@@ -19,8 +19,10 @@ struct RenderItem
 	RenderItem() = default;
 
     DirectX::XMFLOAT4X4 World = MathHelper::Identity4x4(); //该几何体的世界矩阵
+    DirectX::XMFLOAT4X4 TexTransform = MathHelper::Identity4x4();
 	UINT ObjCBIndex = -1; //该几何体的常量数据在objConstantBuffer中的索引
 	MeshGeometry* Geo = nullptr;
+    Material* Mat = nullptr;
     D3D12_PRIMITIVE_TOPOLOGY PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     UINT IndexCount = 0;
     UINT StartIndexLocation = 0;
@@ -77,10 +79,12 @@ private:
     void BuildRootSignature();
     void BuildShadersAndInputLayout();
     void BuildShapeGeometry();
+    void BuildMaterials();
     void BuildPSO();
     void SetViewportAndScissor(UINT width, UINT height);
     void FlushCommandQueue();
     void ProcessInput();
+    void OnKeyboardInput();
 
     HRESULT hr;
     Camera m_camera;
@@ -102,9 +106,13 @@ private:
     void UpdateCamera();
     void UpdateObjectCBs();
     void UpdateMainPassCB();
+    void UpdateMaterialCB();
     std::vector<std::unique_ptr<RenderItem>> mAllRitems;
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
+    std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
     std::vector<RenderItem*> mOpaqueRitems;
+	//std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
+	//std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mShaders;
     //std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
     //std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
 
@@ -120,5 +128,10 @@ private:
     DirectX::XMFLOAT4X4 mWorld = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 mView = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 mProj = MathHelper::Identity4x4();
+
+    //太阳（平行光）位置的球坐标
+    float sunTheta = 1.25f * DirectX::XM_PI;
+    float sunPhi = DirectX::XM_PIDIV4;
+
 };
 

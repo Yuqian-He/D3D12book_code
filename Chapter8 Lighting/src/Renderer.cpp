@@ -42,10 +42,11 @@ void Renderer::Initialize(HWND hwnd)
     BuildRootSignature();
     BuildShadersAndInputLayout();
     BuildShapeGeometry();
+    BuildMaterials();
     BuildRenderItem();
     BuildFrameResources();
-    BuildDescriptorHeaps();
-    BuildConstantBuffers();
+    //BuildDescriptorHeaps();
+    //BuildConstantBuffers();
     BuildPSO();
 
     ThrowIfFailed(m_commandList->Close());
@@ -304,17 +305,16 @@ void Renderer::BuildConstantBuffers(){
 void Renderer::BuildRootSignature(){
 
     //定义根参数
-    CD3DX12_ROOT_PARAMETER slotRootParameter[2];
+    CD3DX12_ROOT_PARAMETER slotRootParameter[3];
 
-    CD3DX12_DESCRIPTOR_RANGE cbvTable0;
-    cbvTable0.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0);
-    slotRootParameter[0].InitAsDescriptorTable(1, &cbvTable0);
+    //0号槽：cbuffer cbPerObject : register(b0)
+    slotRootParameter[0].InitAsConstantBufferView(0);
+    slotRootParameter[1].InitAsConstantBufferView(1);
+    slotRootParameter[2].InitAsConstantBufferView(2); 
 
-    CD3DX12_DESCRIPTOR_RANGE cbvTable1;
-    cbvTable1.Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 1);
-    slotRootParameter[1].InitAsDescriptorTable(1, &cbvTable1);
     //定义根签名描述符
-    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(2, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc(3, slotRootParameter, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    
     //序列化根签名
     ComPtr<ID3DBlob> serializedRootSig = nullptr;
     ComPtr<ID3DBlob> errorBlob = nullptr;
@@ -326,6 +326,7 @@ void Renderer::BuildRootSignature(){
 		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 	}
 	ThrowIfFailed(hr);
+    
     //创建根签名
 	ThrowIfFailed(m_device->CreateRootSignature(
 		0,
@@ -342,6 +343,7 @@ void Renderer::BuildShadersAndInputLayout(){
     m_InputLayout =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 }
@@ -350,9 +352,11 @@ void Renderer::BuildRenderItem(){
     
     auto boxRitem = std::make_unique<RenderItem>();
     XMStoreFloat4x4(&boxRitem->World, XMMatrixScaling(2.0f, 2.0f, 2.0f)*XMMatrixTranslation(0.0f, 0.5f, 0.0f));
+    XMStoreFloat4x4(&boxRitem->TexTransform, XMMatrixScaling(1.0f, 1.0f, 1.0f));
     boxRitem->ObjCBIndex = 0;//BOX常量数据（world矩阵）在objConstantBuffer索引0上
-    //boxRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     boxRitem->Geo = mGeometries["shapeGeo"].get();
+    boxRitem->Mat = mMaterials["stone0"].get();
+    boxRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     boxRitem->IndexCount = boxRitem->Geo->DrawArgs["box"].IndexCount;
     boxRitem->BaseVertexLocation = boxRitem->Geo->DrawArgs["box"].BaseVertexLocation;
     boxRitem->StartIndexLocation = boxRitem->Geo->DrawArgs["box"].StartIndexLocation;
@@ -360,15 +364,18 @@ void Renderer::BuildRenderItem(){
 
     auto gridRitem = std::make_unique<RenderItem>();
 	gridRitem->World = MathHelper::Identity4x4();
+    XMStoreFloat4x4(&gridRitem->TexTransform, XMMatrixScaling(8.0f, 8.0f, 1.0f));
 	gridRitem->ObjCBIndex = 1;//BOX常量数据（world矩阵）在objConstantBuffer索引1上
-	//gridRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
     gridRitem->Geo = mGeometries["shapeGeo"].get();
+    gridRitem->Mat = mMaterials["tile0"].get();
+    gridRitem->PrimitiveType = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	gridRitem->IndexCount = gridRitem->Geo->DrawArgs["grid"].IndexCount;
 	gridRitem->BaseVertexLocation = gridRitem->Geo->DrawArgs["grid"].BaseVertexLocation;
 	gridRitem->StartIndexLocation = gridRitem->Geo->DrawArgs["grid"].StartIndexLocation;
 	mAllRitems.push_back(std::move(gridRitem));
 
-    UINT fllowObjCBIndex = 2;//接下去的几何体常量数据在CB中的索引从2开始
+    UINT objCBIndex = 2;//接下去的几何体常量数据在CB中的索引从2开始
+    XMMATRIX brickTexTransform = XMMatrixScaling(1.0f, 1.0f, 1.0f);
 
     for(int i = 0; i < 5; ++i)
 	{
@@ -384,33 +391,41 @@ void Renderer::BuildRenderItem(){
 		XMMATRIX rightSphereWorld = XMMatrixTranslation(+5.0f, 3.5f, -10.0f + i*5.0f);
 
 		XMStoreFloat4x4(&leftCylRitem->World, rightCylWorld);
-		leftCylRitem->ObjCBIndex = fllowObjCBIndex++;
+        XMStoreFloat4x4(&leftCylRitem->TexTransform, brickTexTransform);
+		leftCylRitem->ObjCBIndex = objCBIndex++;
 		leftCylRitem->Geo = mGeometries["shapeGeo"].get();
-		//leftCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+        leftCylRitem->Mat = mMaterials["bricks0"].get();
+		leftCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		leftCylRitem->IndexCount = leftCylRitem->Geo->DrawArgs["cylinder"].IndexCount;
 		leftCylRitem->StartIndexLocation = leftCylRitem->Geo->DrawArgs["cylinder"].StartIndexLocation;
 		leftCylRitem->BaseVertexLocation = leftCylRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
 
 		XMStoreFloat4x4(&rightCylRitem->World, leftCylWorld);
-		rightCylRitem->ObjCBIndex = fllowObjCBIndex++;
+        XMStoreFloat4x4(&rightCylRitem->TexTransform, brickTexTransform);
+		rightCylRitem->ObjCBIndex = objCBIndex++;
 		rightCylRitem->Geo = mGeometries["shapeGeo"].get();
-		//rightCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+        rightCylRitem->Mat = mMaterials["bricks0"].get();
+		rightCylRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		rightCylRitem->IndexCount = rightCylRitem->Geo->DrawArgs["cylinder"].IndexCount;
 		rightCylRitem->StartIndexLocation = rightCylRitem->Geo->DrawArgs["cylinder"].StartIndexLocation;
 		rightCylRitem->BaseVertexLocation = rightCylRitem->Geo->DrawArgs["cylinder"].BaseVertexLocation;
 
 		XMStoreFloat4x4(&leftSphereRitem->World, leftSphereWorld);
-		leftSphereRitem->ObjCBIndex = fllowObjCBIndex++;
+        leftSphereRitem->TexTransform = MathHelper::Identity4x4();
+		leftSphereRitem->ObjCBIndex = objCBIndex++;
 		leftSphereRitem->Geo = mGeometries["shapeGeo"].get();
-		//leftSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+        leftSphereRitem->Mat = mMaterials["stone0"].get();
+		leftSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		leftSphereRitem->IndexCount = leftSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
 		leftSphereRitem->StartIndexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
 		leftSphereRitem->BaseVertexLocation = leftSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
 
 		XMStoreFloat4x4(&rightSphereRitem->World, rightSphereWorld);
-		rightSphereRitem->ObjCBIndex = fllowObjCBIndex++;
+        rightSphereRitem->TexTransform = MathHelper::Identity4x4();
+		rightSphereRitem->ObjCBIndex = objCBIndex++;
 		rightSphereRitem->Geo = mGeometries["shapeGeo"].get();
-		//rightSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+        rightSphereRitem->Mat = mMaterials["stone0"].get();
+		rightSphereRitem->PrimitiveType = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 		rightSphereRitem->IndexCount = rightSphereRitem->Geo->DrawArgs["sphere"].IndexCount;
 		rightSphereRitem->StartIndexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].StartIndexLocation;
 		rightSphereRitem->BaseVertexLocation = rightSphereRitem->Geo->DrawArgs["sphere"].BaseVertexLocation;
@@ -475,21 +490,25 @@ void Renderer::BuildShapeGeometry(){
     for (int i = 0; i < box.Vertices.size(); i++, k++)
     {
         vertices[k].Pos = box.Vertices[i].Position;
+        vertices[k].Normal = box.Vertices[i].Normal;
         vertices[k].Color = XMFLOAT4(DirectX::Colors::Yellow);
     }
     for (int i = 0; i < grid.Vertices.size(); i++, k++)
     {
         vertices[k].Pos = grid.Vertices[i].Position;
+        vertices[k].Normal = grid.Vertices[i].Normal;
         vertices[k].Color = XMFLOAT4(DirectX::Colors::Brown);
     }
     for (int i = 0; i < sphere.Vertices.size(); i++, k++)
     {
         vertices[k].Pos = sphere.Vertices[i].Position;
+        vertices[k].Normal = sphere.Vertices[i].Normal;
         vertices[k].Color = XMFLOAT4(DirectX::Colors::Green);
     }
     for (int i = 0; i < cylinder.Vertices.size(); i++, k++)
     {
         vertices[k].Pos = cylinder.Vertices[i].Position;
+        vertices[k].Normal = cylinder.Vertices[i].Normal;
         vertices[k].Color = XMFLOAT4(DirectX::Colors::Blue);
     }
 
@@ -531,6 +550,46 @@ void Renderer::BuildShapeGeometry(){
 
     mGeometries[geo->Name] = std::move(geo);
 
+}
+
+void Renderer::BuildMaterials()
+{
+    auto boxMat = std::make_unique<Material>();
+    boxMat->Name = "bricks0";
+    boxMat->MatCBIndex = 0;
+    boxMat->DiffuseSrvHeapIndex = 0;
+    boxMat->DiffuseAlbedo = XMFLOAT4(Colors::Yellow);
+    boxMat->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
+    boxMat->Roughness = 0.25f;
+
+    auto gridMat = std::make_unique<Material>();
+    gridMat->Name = "stone0";
+    gridMat->MatCBIndex = 1;
+    gridMat->DiffuseSrvHeapIndex = 1;
+    gridMat->DiffuseAlbedo = XMFLOAT4(Colors::Brown);
+    gridMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+    gridMat->Roughness = 0.3f;
+
+    auto sphereMat = std::make_unique<Material>();
+    sphereMat->Name = "tile0";
+    sphereMat->MatCBIndex = 2;
+    sphereMat->DiffuseSrvHeapIndex = 2;
+    sphereMat->DiffuseAlbedo = XMFLOAT4(Colors::Green);
+    sphereMat->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
+    sphereMat->Roughness = 0.2f;
+
+    auto cylinderMat = std::make_unique<Material>();
+    cylinderMat->Name = "skullMat";
+    cylinderMat->MatCBIndex = 3;
+    cylinderMat->DiffuseSrvHeapIndex = 3;
+    cylinderMat->DiffuseAlbedo = XMFLOAT4(Colors::Blue);
+    cylinderMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
+    cylinderMat->Roughness = 0.3f;
+
+    mMaterials["bricks0"] = std::move(boxMat);
+    mMaterials["stone0"] = std::move(gridMat);
+    mMaterials["tile0"] = std::move(sphereMat);
+    mMaterials["skullMat"] = std::move(cylinderMat);
 }
 
 void Renderer::BuildPSO(){
@@ -582,7 +641,9 @@ void Renderer::SetViewportAndScissor(UINT width, UINT height) {
 
 void Renderer::Update()
 {
+    OnKeyboardInput();
     UpdateCamera();
+
     //每帧遍历一个帧资源（多帧的话就是环形遍历）
     mCurrFrameResourceIndex = (mCurrFrameResourceIndex + 1) % gNumFrameResources;
     mCurrFrameResource = mFrameResources[mCurrFrameResourceIndex].get();
@@ -596,8 +657,29 @@ void Renderer::Update()
         CloseHandle(eventHandle);
     }
     UpdateObjectCBs();
+    UpdateMaterialCB();
     UpdateMainPassCB();
 
+}
+
+void Renderer::UpdateMaterialCB(){
+    auto currMaterialCB = mCurrFrameResource->MaterialCB.get();
+    for(auto& e : mMaterials){
+        Material* mat = e.second.get();
+        if(mat->NumFramesDirty > 0){
+            XMMATRIX matTransform = XMLoadFloat4x4(&mat->MatTransform);
+			MaterialConstants matConstants;
+			matConstants.DiffuseAlbedo = mat->DiffuseAlbedo;
+			matConstants.FresnelR0 = mat->FresnelR0;
+			matConstants.Roughness = mat->Roughness;
+			XMStoreFloat4x4(&matConstants.MatTransform, XMMatrixTranspose(matTransform));
+
+			currMaterialCB->CopyData(mat->MatCBIndex, matConstants);
+
+			// Next FrameResource need to be updated too.
+			mat->NumFramesDirty--;
+        }
+    }
 }
 
 void Renderer::UpdateCamera(){
@@ -611,8 +693,12 @@ void Renderer::UpdateObjectCBs(){
     for(auto& e : mAllRitems){
         if(e->NumFramesDirty > 0){
             XMMATRIX world = XMLoadFloat4x4(&e->World);
+            XMMATRIX texTransform = XMLoadFloat4x4(&e->TexTransform);
+
             ObjectConstants objConstants;
             XMStoreFloat4x4(&objConstants.world, XMMatrixTranspose(world));
+            XMStoreFloat4x4(&objConstants.TexTransform, XMMatrixTranspose(texTransform));
+
             currObjectCB->CopyData(e->ObjCBIndex, objConstants);
             e->NumFramesDirty--;
         }
@@ -621,42 +707,58 @@ void Renderer::UpdateObjectCBs(){
 
 void Renderer::UpdateMainPassCB(){
     PassConstants passConstants;
-    XMMATRIX view = m_camera.GetViewMatrix();
-    float aspectRatio = static_cast<float>(m_width) / static_cast<float>(m_height);
-    float fov = XMConvertToRadians(60.0f);
-    float nearZ = 1.0f;
-    float farZ = 1000.0f;
-    XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearZ, farZ);
-    XMStoreFloat4x4(&mProj, proj);
-    XMMATRIX ViewProj =  view * proj;
-    XMStoreFloat4x4(&passConstants.viewProj, XMMatrixTranspose(ViewProj));
+
+	XMMATRIX view = XMLoadFloat4x4(&mView);
+	XMMATRIX proj = XMLoadFloat4x4(&mProj);
+
+	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
+	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
+	XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
+	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
+
+	XMStoreFloat4x4(&passConstants.View, XMMatrixTranspose(view));
+	XMStoreFloat4x4(&passConstants.InvView, XMMatrixTranspose(invView));
+	XMStoreFloat4x4(&passConstants.Proj, XMMatrixTranspose(proj));
+	XMStoreFloat4x4(&passConstants.InvProj, XMMatrixTranspose(invProj));
+	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(viewProj));
+	XMStoreFloat4x4(&passConstants.InvViewProj, XMMatrixTranspose(invViewProj));
+
+    passConstants.eyePosW = m_camera.GetPosition();
 
     //在这里设置光照
     passConstants.ambientLight = { 0.25f, 0.25f, 0.35f, 1.0f };
-    passConstants.Lights[0].Strength = { 1.0f, 1.0f, 0.9f };
-    passConstants.Lights[0].Direction = { -0.577f, -0.577f, -0.577f }; 
+    passConstants.Lights[0].Strength = { 1.0f,1.0f,0.9f };
+    XMVECTOR sunDir = -MathHelper::SphericalToCartesian(1.0f, sunTheta, sunPhi);
+    XMStoreFloat3(&passConstants.Lights[0].Direction, sunDir);
 
     auto currPassCB = mCurrFrameResource->PassCB.get();
     currPassCB->CopyData(0, passConstants);
 }
 
 void Renderer::DrawRenderItems(ID3D12GraphicsCommandList* m_commandList,const std::vector<RenderItem*>& ritems){
+    // 常量缓冲区字节对齐大小（例如 256 字节对齐）
+    UINT objCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(ObjectConstants));
+    UINT matCBByteSize = d3dUtil::CalcConstantBufferByteSize(sizeof(MaterialConstants));
+
+    // 获取当前帧的材质常量缓冲资源
+	auto objectCB = mCurrFrameResource->ObjectCB->Resource();
+	auto matCB = mCurrFrameResource->MaterialCB->Resource();
 
     //遍历渲染项数组
 	for (size_t i = 0; i < ritems.size(); i++)
 	{
 		auto ritem = ritems[i];
 
+        // 设置顶点/索引缓冲区和图元拓扑
 		m_commandList->IASetVertexBuffers(0, 1, &ritem->Geo->VertexBufferView());
 		m_commandList->IASetIndexBuffer(&ritem->Geo->IndexBufferView());
 		m_commandList->IASetPrimitiveTopology(ritem->PrimitiveType);
 
-		//设置根描述符表
-		UINT objCbvIndex = mCurrFrameResourceIndex*(UINT)mAllRitems.size() + ritem->ObjCBIndex;
-		auto handle = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
-		handle.Offset(objCbvIndex, m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
-		m_commandList->SetGraphicsRootDescriptorTable(0, //根参数的起始索引
-			handle);
+		// 设置 ObjectCB 的根描述符表（槽位 0）
+        D3D12_GPU_VIRTUAL_ADDRESS objCBAddress = objectCB->GetGPUVirtualAddress() + ritem->ObjCBIndex*objCBByteSize;
+        D3D12_GPU_VIRTUAL_ADDRESS matCBAddress = matCB->GetGPUVirtualAddress() + ritem->Mat->MatCBIndex*matCBByteSize;
+        m_commandList->SetGraphicsRootConstantBufferView(0, objCBAddress);
+        m_commandList->SetGraphicsRootConstantBufferView(1, matCBAddress);
 
 		//绘制顶点（通过索引缓冲区绘制）
 		m_commandList->DrawIndexedInstanced(ritem->IndexCount, //每个实例要绘制的索引数
@@ -690,18 +792,15 @@ void Renderer::Render()
 
     // 设置我们要渲染的buffer
     m_commandList->OMSetRenderTargets(1, &CurrentBackBufferView(), TRUE, &DepthStencilView()); //RTV
-    ID3D12DescriptorHeap* descriptorHeaps[] = { mCbvHeap.Get() };
-    m_commandList->SetDescriptorHeaps(_countof(descriptorHeaps), descriptorHeaps); //CBV
     m_commandList->SetGraphicsRootSignature(m_rootSignature.Get()); //RootSignature
 
     //绑定passCbv
-    int passCbvIndex = (int)mAllRitems.size() * gNumFrameResources + mCurrFrameResourceIndex;
-    auto handle1 = CD3DX12_GPU_DESCRIPTOR_HANDLE(mCbvHeap->GetGPUDescriptorHandleForHeapStart());
-    handle1.Offset(passCbvIndex, m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV));
-    m_commandList->SetGraphicsRootDescriptorTable(1, handle1);
+    auto passCB = mCurrFrameResource->PassCB->Resource();
+    m_commandList->SetGraphicsRootConstantBufferView(2, passCB->GetGPUVirtualAddress());
 
     //渲染几何体
     DrawRenderItems(m_commandList.Get(),mOpaqueRitems);
+    std::cout << "finish" << std::endl;
 
     // 过渡到 PRESENT 状态
     m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(
@@ -729,7 +828,7 @@ void Renderer::BuildFrameResources()
     for(int i = 0; i < gNumFrameResources; ++i)
     {
         mFrameResources.push_back(std::make_unique<FrameResource>(m_device.Get(),
-            1, (UINT)mAllRitems.size()));
+            1, (UINT)mAllRitems.size(),(UINT)mMaterials.size()));
     }
 }
 
@@ -788,4 +887,22 @@ void Renderer::ProcessInput()
 
     // 更新上一帧的鼠标位置
     lastCursorPos = cursorPos;
+}
+
+//用键盘控制光源的位置
+void Renderer::OnKeyboardInput()
+{
+    const float dt = 0.016f;
+	//左右键改变平行光的Theta角，上下键改变平行光的Phi角
+	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+		sunTheta -= 1.0f * dt;
+	if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+		sunTheta += 1.0f * dt;
+	if (GetAsyncKeyState(VK_UP) & 0x8000)
+		sunPhi -= 1.0f * dt;
+	if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		sunPhi += 1.0f * dt;
+
+	//将Phi约束在[0, PI/2]之间
+	sunPhi = MathHelper::Clamp(sunPhi, 0.1f, XM_PIDIV2);
 }
