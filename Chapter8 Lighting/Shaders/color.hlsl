@@ -78,4 +78,5 @@ float4 PS(VertexOut pin) : SV_Target
     finalCol.a = gDiffuseAlbedo.a;
     
     return finalCol;
+	//return float4(1, 0, 0, 1);
 }

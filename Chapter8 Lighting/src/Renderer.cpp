@@ -566,7 +566,7 @@ void Renderer::BuildMaterials()
     boxMat->Name = "bricks0";
     boxMat->MatCBIndex = 0;
     boxMat->DiffuseSrvHeapIndex = 0;
-    boxMat->DiffuseAlbedo = XMFLOAT4(Colors::Yellow);
+    boxMat->DiffuseAlbedo = XMFLOAT4(Colors::ForestGreen);
     boxMat->FresnelR0 = XMFLOAT3(0.1f, 0.1f, 0.1f);
     boxMat->Roughness = 0.25f;
 
@@ -574,7 +574,7 @@ void Renderer::BuildMaterials()
     gridMat->Name = "stone0";
     gridMat->MatCBIndex = 1;
     gridMat->DiffuseSrvHeapIndex = 1;
-    gridMat->DiffuseAlbedo = XMFLOAT4(Colors::Brown);
+    gridMat->DiffuseAlbedo = XMFLOAT4(Colors::LightSteelBlue);
     gridMat->FresnelR0 = XMFLOAT3(0.05f, 0.05f, 0.05f);
     gridMat->Roughness = 0.3f;
 
@@ -582,7 +582,7 @@ void Renderer::BuildMaterials()
     sphereMat->Name = "tile0";
     sphereMat->MatCBIndex = 2;
     sphereMat->DiffuseSrvHeapIndex = 2;
-    sphereMat->DiffuseAlbedo = XMFLOAT4(Colors::Green);
+    sphereMat->DiffuseAlbedo = XMFLOAT4(Colors::LightGray);
     sphereMat->FresnelR0 = XMFLOAT3(0.02f, 0.02f, 0.02f);
     sphereMat->Roughness = 0.2f;
 
@@ -715,21 +715,24 @@ void Renderer::UpdateObjectCBs(){
 
 void Renderer::UpdateMainPassCB(){
     PassConstants passConstants;
+    XMMATRIX view = m_camera.GetViewMatrix();
+    float aspectRatio = static_cast<float>(m_width) / static_cast<float>(m_height);
+    float fov = XMConvertToRadians(60.0f);
+    float nearZ = 1.0f;
+    float farZ = 1000.0f;
+    XMMATRIX proj = XMMatrixPerspectiveFovLH(fov, aspectRatio, nearZ, farZ);
 
-	XMMATRIX view = XMLoadFloat4x4(&mView);
-	XMMATRIX proj = XMLoadFloat4x4(&mProj);
-
-	XMMATRIX viewProj = XMMatrixMultiply(view, proj);
+    XMMATRIX viewProj =  view * proj;
 	XMMATRIX invView = XMMatrixInverse(&XMMatrixDeterminant(view), view);
 	XMMATRIX invProj = XMMatrixInverse(&XMMatrixDeterminant(proj), proj);
 	XMMATRIX invViewProj = XMMatrixInverse(&XMMatrixDeterminant(viewProj), viewProj);
 
-	XMStoreFloat4x4(&passConstants.View, XMMatrixTranspose(view));
-	XMStoreFloat4x4(&passConstants.InvView, XMMatrixTranspose(invView));
-	XMStoreFloat4x4(&passConstants.Proj, XMMatrixTranspose(proj));
-	XMStoreFloat4x4(&passConstants.InvProj, XMMatrixTranspose(invProj));
+	//XMStoreFloat4x4(&passConstants.View, XMMatrixTranspose(view));
+	//XMStoreFloat4x4(&passConstants.InvView, XMMatrixTranspose(invView));
+	//XMStoreFloat4x4(&passConstants.Proj, XMMatrixTranspose(proj));
+	//XMStoreFloat4x4(&passConstants.InvProj, XMMatrixTranspose(invProj));
 	XMStoreFloat4x4(&passConstants.ViewProj, XMMatrixTranspose(viewProj));
-	XMStoreFloat4x4(&passConstants.InvViewProj, XMMatrixTranspose(invViewProj));
+	//XMStoreFloat4x4(&passConstants.InvViewProj, XMMatrixTranspose(invViewProj));
 
     passConstants.eyePosW = m_camera.GetPosition();
 
