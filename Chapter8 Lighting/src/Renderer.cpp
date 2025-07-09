@@ -35,19 +35,26 @@ void Renderer::Initialize(HWND hwnd)
     CreateDescriptorHeaps(); 
     CreateRenderTargetView();
     CreateDepthStencilBuffer();
+    std::cout << "1" << std::endl;
 
     //画正方体
     ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), nullptr));
     
     BuildRootSignature();
+    std::cout << "22" << std::endl;
     BuildShadersAndInputLayout();
+    std::cout << "2" << std::endl;
     BuildShapeGeometry();
+    std::cout << "3" << std::endl;
     BuildMaterials();
+    std::cout << "4" << std::endl;
     BuildRenderItem();
+    std::cout << "5" << std::endl;
     BuildFrameResources();
     //BuildDescriptorHeaps();
     //BuildConstantBuffers();
     BuildPSO();
+    std::cout << "BuildPSO" << std::endl;
 
     ThrowIfFailed(m_commandList->Close());
 
@@ -337,14 +344,19 @@ void Renderer::BuildRootSignature(){
 
 void Renderer::BuildShadersAndInputLayout(){
 
-    mvsByteCode = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter7 Drawing in Direct3D Part2\\Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
-	mpsByteCode = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter7 Drawing in Direct3D Part2\\Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
+    const D3D_SHADER_MACRO alphaTestDefines[] =
+	{
+		"ALPHA_TEST", "1",
+		NULL, NULL
+	};
+    std::cout << "222" << std::endl;
+	mShaders["standardVS"] = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\Shaders\\color.hlsl", nullptr, "VS", "vs_5_0");
+	mShaders["opaquePS"] = d3dUtil::CompileShader(L"D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\Shaders\\color.hlsl", nullptr, "PS", "ps_5_0");
 
     m_InputLayout =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+        { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12,  D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
     };
 }
 
@@ -491,25 +503,21 @@ void Renderer::BuildShapeGeometry(){
     {
         vertices[k].Pos = box.Vertices[i].Position;
         vertices[k].Normal = box.Vertices[i].Normal;
-        vertices[k].Color = XMFLOAT4(DirectX::Colors::Yellow);
     }
     for (int i = 0; i < grid.Vertices.size(); i++, k++)
     {
         vertices[k].Pos = grid.Vertices[i].Position;
         vertices[k].Normal = grid.Vertices[i].Normal;
-        vertices[k].Color = XMFLOAT4(DirectX::Colors::Brown);
     }
     for (int i = 0; i < sphere.Vertices.size(); i++, k++)
     {
         vertices[k].Pos = sphere.Vertices[i].Position;
         vertices[k].Normal = sphere.Vertices[i].Normal;
-        vertices[k].Color = XMFLOAT4(DirectX::Colors::Green);
     }
     for (int i = 0; i < cylinder.Vertices.size(); i++, k++)
     {
         vertices[k].Pos = cylinder.Vertices[i].Position;
         vertices[k].Normal = cylinder.Vertices[i].Normal;
-        vertices[k].Color = XMFLOAT4(DirectX::Colors::Blue);
     }
 
     //创建一个总的index索引
@@ -593,20 +601,19 @@ void Renderer::BuildMaterials()
 }
 
 void Renderer::BuildPSO(){
-
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
     ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
     psoDesc.InputLayout = { m_InputLayout.data(), (UINT)m_InputLayout.size() };
     psoDesc.pRootSignature = m_rootSignature.Get();
     psoDesc.VS = 
 	{ 
-		reinterpret_cast<BYTE*>(mvsByteCode->GetBufferPointer()), 
-		mvsByteCode->GetBufferSize() 
+		reinterpret_cast<BYTE*>(mShaders["standardVS"]->GetBufferPointer()), 
+		mShaders["standardVS"]->GetBufferSize()
 	};
     psoDesc.PS = 
 	{ 
-		reinterpret_cast<BYTE*>(mpsByteCode->GetBufferPointer()), 
-		mpsByteCode->GetBufferSize() 
+		reinterpret_cast<BYTE*>(mShaders["opaquePS"]->GetBufferPointer()),
+		mShaders["opaquePS"]->GetBufferSize() 
 	};
     psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
     psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -617,6 +624,7 @@ void Renderer::BuildPSO(){
     psoDesc.RTVFormats[0] = mBackBufferFormat;
     psoDesc.SampleDesc.Count = m4xMsaaState ? 4 : 1;
     psoDesc.SampleDesc.Quality = m4xMsaaState ? (m4xMsaaQuality - 1) : 0;
+    std::cout << "8" << std::endl;
     psoDesc.DSVFormat = mDepthStencilFormat;
     ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&m_pipelineState)));
 }

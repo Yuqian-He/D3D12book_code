@@ -2,6 +2,7 @@
 #include "d3dUtil.h"
 #include <comdef.h>
 #include <fstream>
+#include <iostream>
 
 using Microsoft::WRL::ComPtr;
 
@@ -105,9 +106,13 @@ ComPtr<ID3DBlob> d3dUtil::CompileShader(
 	hr = D3DCompileFromFile(filename.c_str(), defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		entrypoint.c_str(), target.c_str(), compileFlags, 0, &byteCode, &errors);
 
-	if(errors != nullptr)
-		OutputDebugStringA((char*)errors->GetBufferPointer());
+	if(errors != nullptr){
 
+
+        const char* errorMsg = (const char*)errors->GetBufferPointer();
+		OutputDebugStringA((char*)errors->GetBufferPointer());
+        std::cerr << "Shader compile errors (" << std::string(entrypoint) << "):\n" << errorMsg << std::endl;
+    }   
 	ThrowIfFailed(hr);
 
 	return byteCode;

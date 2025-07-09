@@ -129,7 +129,7 @@ float3 ComputeSpotLight(Light L, Material mat, float3 pos, float3 normal, float3
     return BlinnPhong(lightStrength, lightVec, normal, toEye, mat);
 }
 
-float4 ComputeLighting(Light gLights[MaxLights], Material mat,
+float4 ComputerLighting(Light gLights[MaxLights], Material mat,
                        float3 pos, float3 normal, float3 toEye,
                        float3 shadowFactor)
 {

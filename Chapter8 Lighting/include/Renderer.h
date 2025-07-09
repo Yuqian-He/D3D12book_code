@@ -111,9 +111,8 @@ private:
     std::unordered_map<std::string, std::unique_ptr<MeshGeometry>> mGeometries;
     std::unordered_map<std::string, std::unique_ptr<Material>> mMaterials;
     std::vector<RenderItem*> mOpaqueRitems;
+    std::unordered_map<std::string,  Microsoft::WRL::ComPtr<ID3DBlob>> mShaders;
 	//std::unordered_map<std::string, std::unique_ptr<Texture>> mTextures;
-	//std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3DBlob>> mShaders;
-    //std::unordered_map<std::string, ComPtr<ID3DBlob>> mShaders;
     //std::unordered_map<std::string, ComPtr<ID3D12PipelineState>> mPSOs;
 
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> mCbvHeap = nullptr;

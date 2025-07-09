@@ -31,14 +31,13 @@ cbuffer cbPass : register(b2)
     float3 gEyePosW;
     float gTotalTime;
     float4 gAmbientLight;
-    Light gLights[MAX_LIGHTS];
+    Light gLights[MaxLights];
 };
 
 struct VertexIn
 {
 	float3 PosL  : POSITION;
 	float3 Normal : NORMAL;
-    float4 Color : COLOR;
 };
 
 struct VertexOut
@@ -46,20 +45,19 @@ struct VertexOut
 	float4 PosH  : SV_POSITION;
 	float3 WorldPos : POSITION;
 	float3 WorldNormal : NORMAL;
-    float4 Color : COLOR;
 };
 
 VertexOut VS(VertexIn vin)
 {
 	VertexOut vout;
 
-    float4 PosW = mul(float4(vin.Vertex, 1.0f), gWorld);
-    vout.WorldPos = PosW;
+    float4 PosW = mul(float4(vin.PosL, 1.0f), gWorld);
+    vout.WorldPos = PosW.xyz;
     
     //只做均匀缩放，所以可以不使用逆转置矩阵
     vout.WorldNormal = mul(vin.Normal, (float3x3)gWorld);
     
-    vout.Pos = mul(PosW, gViewProj);
+   	vout.PosH = mul(PosW, gViewProj); 
     
     return vout;
 }
