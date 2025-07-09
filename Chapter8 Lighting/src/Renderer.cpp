@@ -741,6 +741,16 @@ void Renderer::UpdateMainPassCB(){
     passConstants.Lights[0].Strength = { 1.0f,1.0f,0.9f };
     XMVECTOR sunDir = -MathHelper::SphericalToCartesian(1.0f, sunTheta, sunPhi);
     XMStoreFloat3(&passConstants.Lights[0].Direction, sunDir);
+    /*
+    Light dirLight = {};
+    dirLight.Strength = { 1.0f, 1.0f, 0.9f };
+    dirLight.Direction = { -0.57735f, -0.57735f, 0.57735f };
+    dirLight.FalloffStart = 1.0f;  // 即使是方向光，也要初始化
+    dirLight.FalloffEnd = 10.0f;
+    dirLight.Position = { 0.0f, 0.0f, 0.0f };
+    dirLight.SpotPower = 64.0f;
+    passConstants.Lights[0] = dirLight;
+    */
 
     auto currPassCB = mCurrFrameResource->PassCB.get();
     currPassCB->CopyData(0, passConstants);
@@ -903,7 +913,7 @@ void Renderer::ProcessInput()
 //用键盘控制光源的位置
 void Renderer::OnKeyboardInput()
 {
-    const float dt = 0.016f;
+    const float dt = 0.003f;
 	//左右键改变平行光的Theta角，上下键改变平行光的Phi角
 	if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		sunTheta -= 1.0f * dt;

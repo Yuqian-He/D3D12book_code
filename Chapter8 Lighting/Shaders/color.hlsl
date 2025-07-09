@@ -78,5 +78,6 @@ float4 PS(VertexOut pin) : SV_Target
     finalCol.a = gDiffuseAlbedo.a;
     
     return finalCol;
-	//return float4(1, 0, 0, 1);
+	//float3 dir = normalize(gLights[0].Direction);
+	//return float4(abs(dir), 1.0f);
 }

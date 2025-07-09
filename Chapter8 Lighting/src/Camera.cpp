@@ -15,13 +15,13 @@ Camera::Camera()
       m_up({ 0.0f, 1.0f, 0.0f }),
       m_yaw(0.0f),
       m_pitch(0.0f),
-      m_speed(0.5f)  // 默认速度
+      m_speed(0.2f)  // 默认速度
 {
     UpdateViewMatrix();
 }
 
 Camera::Camera(XMFLOAT3 position, XMFLOAT3 target, XMFLOAT3 up)
-    : m_position(position), m_target(target), m_up(up), m_yaw(0.0f), m_pitch(0.0f), m_speed(0.5f)
+    : m_position(position), m_target(target), m_up(up), m_yaw(0.0f), m_pitch(0.0f), m_speed(0.2f)
 {
     UpdateViewMatrix();
 }

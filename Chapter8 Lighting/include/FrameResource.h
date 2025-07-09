@@ -18,10 +18,11 @@ struct PassConstants
     //DirectX::XMFLOAT4X4 InvProj = MathHelper::Identity4x4();
     DirectX::XMFLOAT4X4 ViewProj = MathHelper::Identity4x4();
     //DirectX::XMFLOAT4X4 InvViewProj = MathHelper::Identity4x4();
-
+    DirectX::XMFLOAT3 eyePosW = { 0.0f, 0.0f, 0.0f };
+    float gTotalTime;  
     DirectX::XMFLOAT4 ambientLight = { 0.0f,0.0f,0.0f,1.0f };
     Light Lights[MaxLights];
-    DirectX::XMFLOAT3 eyePosW = { 0.0f, 0.0f, 0.0f };
+    
     //DirectX::XMFLOAT4X4 InvViewProj = MathHelper::Identity4x4();
     //DirectX::XMFLOAT3 EyePosW = { 0.0f, 0.0f, 0.0f };
     //float cbPerObjectPad1 = 0.0f;

@@ -24,7 +24,7 @@ events:
       The output was:
       0
       MSBuild version 17.12.6+db5f6012c for .NET Framework
-      Build started 09/07/2025 14:17:06.
+      Build started 09/07/2025 20:18:43.
       
       Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\3.31.0\\CompilerIdC\\CompilerIdC.vcxproj" on node 1 (default targets).
       PrepareForBuild:
@@ -79,7 +79,7 @@ events:
       The output was:
       0
       MSBuild version 17.12.6+db5f6012c for .NET Framework
-      Build started 09/07/2025 14:17:07.
+      Build started 09/07/2025 20:18:44.
       
       Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\3.31.0\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
       PrepareForBuild:
@@ -108,7 +108,7 @@ events:
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:00.35
+      Time Elapsed 00:00:00.36
       
       
       Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -127,8 +127,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-shzfy3"
-      binary: "D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-shzfy3"
+      source: "D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-8gjtqw"
+      binary: "D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-8gjtqw"
     cmakeVariables:
       CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS"
       CMAKE_C_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
@@ -137,34 +137,34 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-shzfy3'
+        Change Dir: 'D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-8gjtqw'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_7d5cc.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_5c015.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.12.6+db5f6012c for .NET Framework
-        Build started 09/07/2025 14:17:07.
+        Build started 09/07/2025 20:18:45.
         
-        Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-shzfy3\\cmTC_7d5cc.vcxproj" on node 1 (default targets).
+        Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8gjtqw\\cmTC_5c015.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_7d5cc.dir\\Debug\\".
+          Creating directory "cmTC_5c015.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-shzfy3\\Debug\\".
-          Creating directory "cmTC_7d5cc.dir\\Debug\\cmTC_7d5cc.tlog\\".
+          Creating directory "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8gjtqw\\Debug\\".
+          Creating directory "cmTC_5c015.dir\\Debug\\cmTC_5c015.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_7d5cc.dir\\Debug\\cmTC_7d5cc.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_7d5cc.dir\\Debug\\cmTC_7d5cc.tlog\\unsuccessfulbuild".
+          Creating "cmTC_5c015.dir\\Debug\\cmTC_5c015.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_5c015.dir\\Debug\\cmTC_5c015.tlog\\unsuccessfulbuild".
         ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_7d5cc.dir\\Debug\\\\" /Fd"cmTC_7d5cc.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_5c015.dir\\Debug\\\\" /Fd"cmTC_5c015.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.42.34433 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_7d5cc.dir\\Debug\\\\" /Fd"cmTC_7d5cc.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_5c015.dir\\Debug\\\\" /Fd"cmTC_5c015.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TC /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
           CMakeCCompilerABI.c
         Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-shzfy3\\Debug\\cmTC_7d5cc.exe" /INCREMENTAL /ILK:"cmTC_7d5cc.dir\\Debug\\cmTC_7d5cc.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-shzfy3/Debug/cmTC_7d5cc.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-shzfy3/Debug/cmTC_7d5cc.lib" /MACHINE:X64  /machine:x64 cmTC_7d5cc.dir\\Debug\\CMakeCCompilerABI.obj
-          cmTC_7d5cc.vcxproj -> D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-shzfy3\\Debug\\cmTC_7d5cc.exe
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8gjtqw\\Debug\\cmTC_5c015.exe" /INCREMENTAL /ILK:"cmTC_5c015.dir\\Debug\\cmTC_5c015.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-8gjtqw/Debug/cmTC_5c015.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-8gjtqw/Debug/cmTC_5c015.lib" /MACHINE:X64  /machine:x64 cmTC_5c015.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_5c015.vcxproj -> D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8gjtqw\\Debug\\cmTC_5c015.exe
         FinalizeBuildStatus:
-          Deleting file "cmTC_7d5cc.dir\\Debug\\cmTC_7d5cc.tlog\\unsuccessfulbuild".
-          Touching "cmTC_7d5cc.dir\\Debug\\cmTC_7d5cc.tlog\\cmTC_7d5cc.lastbuildstate".
-        Done Building Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-shzfy3\\cmTC_7d5cc.vcxproj" (default targets).
+          Deleting file "cmTC_5c015.dir\\Debug\\cmTC_5c015.tlog\\unsuccessfulbuild".
+          Touching "cmTC_5c015.dir\\Debug\\cmTC_5c015.tlog\\cmTC_5c015.lastbuildstate".
+        Done Building Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-8gjtqw\\cmTC_5c015.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
@@ -210,8 +210,8 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-kzhq7n"
-      binary: "D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-kzhq7n"
+      source: "D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-0az4au"
+      binary: "D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-0az4au"
     cmakeVariables:
       CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
@@ -221,40 +221,40 @@ events:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-kzhq7n'
+        Change Dir: 'D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-0az4au'
         
-        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_a02a1.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_92933.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.12.6+db5f6012c for .NET Framework
-        Build started 09/07/2025 14:17:08.
+        Build started 09/07/2025 20:18:45.
         
-        Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kzhq7n\\cmTC_a02a1.vcxproj" on node 1 (default targets).
+        Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0az4au\\cmTC_92933.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_a02a1.dir\\Debug\\".
+          Creating directory "cmTC_92933.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kzhq7n\\Debug\\".
-          Creating directory "cmTC_a02a1.dir\\Debug\\cmTC_a02a1.tlog\\".
+          Creating directory "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0az4au\\Debug\\".
+          Creating directory "cmTC_92933.dir\\Debug\\cmTC_92933.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_a02a1.dir\\Debug\\cmTC_a02a1.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_a02a1.dir\\Debug\\cmTC_a02a1.tlog\\unsuccessfulbuild".
+          Creating "cmTC_92933.dir\\Debug\\cmTC_92933.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_92933.dir\\Debug\\cmTC_92933.tlog\\unsuccessfulbuild".
         ClCompile:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_a02a1.dir\\Debug\\\\" /Fd"cmTC_a02a1.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_92933.dir\\Debug\\\\" /Fd"cmTC_92933.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.42.34433 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_a02a1.dir\\Debug\\\\" /Fd"cmTC_a02a1.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
+          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_92933.dir\\Debug\\\\" /Fd"cmTC_92933.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
           CMakeCXXCompilerABI.cpp
         Link:
-          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kzhq7n\\Debug\\cmTC_a02a1.exe" /INCREMENTAL /ILK:"cmTC_a02a1.dir\\Debug\\cmTC_a02a1.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-kzhq7n/Debug/cmTC_a02a1.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-kzhq7n/Debug/cmTC_a02a1.lib" /MACHINE:X64  /machine:x64 cmTC_a02a1.dir\\Debug\\CMakeCXXCompilerABI.obj
-          cmTC_a02a1.vcxproj -> D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kzhq7n\\Debug\\cmTC_a02a1.exe
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.42.34433\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0az4au\\Debug\\cmTC_92933.exe" /INCREMENTAL /ILK:"cmTC_92933.dir\\Debug\\cmTC_92933.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-0az4au/Debug/cmTC_92933.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:/Personal Project/D3D12book_code/Chapter8 Lighting/build/CMakeFiles/CMakeScratch/TryCompile-0az4au/Debug/cmTC_92933.lib" /MACHINE:X64  /machine:x64 cmTC_92933.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_92933.vcxproj -> D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0az4au\\Debug\\cmTC_92933.exe
         FinalizeBuildStatus:
-          Deleting file "cmTC_a02a1.dir\\Debug\\cmTC_a02a1.tlog\\unsuccessfulbuild".
-          Touching "cmTC_a02a1.dir\\Debug\\cmTC_a02a1.tlog\\cmTC_a02a1.lastbuildstate".
-        Done Building Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-kzhq7n\\cmTC_a02a1.vcxproj" (default targets).
+          Deleting file "cmTC_92933.dir\\Debug\\cmTC_92933.tlog\\unsuccessfulbuild".
+          Touching "cmTC_92933.dir\\Debug\\cmTC_92933.tlog\\cmTC_92933.lastbuildstate".
+        Done Building Project "D:\\Personal Project\\D3D12book_code\\Chapter8 Lighting\\build\\CMakeFiles\\CMakeScratch\\TryCompile-0az4au\\cmTC_92933.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:00.35
+        Time Elapsed 00:00:00.34
         
       exitCode: 0
   -
